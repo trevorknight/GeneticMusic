@@ -1,7 +1,7 @@
 # GeneticMusic
 
 ## Getting started
-- Install PortMidi from http://portmedia.sourceforge.net/portmidi/
+- Install PortMidi: http://sourceforge.net/p/portmedia/wiki/Installing_portmidi_on_Mac/
 - Install dependencies:
 
 ```
