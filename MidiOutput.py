@@ -1,7 +1,9 @@
-__author__ = 'TrevorKnight'
 
 import mido
 from time import sleep
+
+__author__ = 'TrevorKnight'
+
 
 class MidiOutput:
     def __init__(self):
@@ -14,7 +16,7 @@ class MidiOutput:
         sleep(1)  # Ensure the virtual MIDI port has time to register
         return self
 
-    def __exit__(self, type, value, traceback):
+    def __exit__(self, t, v, tb):
         sleep(3)  # Wait for note off messages just in case
         print('exit')
         del self.port
