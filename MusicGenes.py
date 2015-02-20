@@ -51,15 +51,14 @@ class _Gene:
             lower_bound, upper_bound = upper_bound, lower_bound
         self.lower_bound = lower_bound
         self.upper_bound = upper_bound
-        self.data = lower_bound
         self.mutator = lambda cur, lower, upper: lower_bound
-        self.randomizer = lambda: s = lower_bound
+        self.randomizer = lambda: lower_bound
 
-    def randomize(self):
-        self.data = self.randomizer()
+    def get_random_value(self):
+        return self.randomizer()
 
-    def mutate(self):
-        self.data = self.mutator(self.data, self.lower_bound, self.upper_bound)
+    def get_mutated_value(self, current):
+        return self.mutator(current, self.lower_bound, self.upper_bound)
 
 
 class DiscreteOrderedGene(_Gene):
@@ -89,29 +88,36 @@ class ContinuousGene(_Gene):
             self.mutator = _random_mutate
 
 
-class Chromosome:
-    def __init__(self, genes, mutation_chance=0.05):
-        self.Genome = dict(genes)
-        self.mutation_chance = mutation_chance
-        self.score = 0
+class Genotype(dict):
+    def __init__(self):
+        self.fitness = 0
 
-    def crossover(self, other):
-        assert len(self.Genome) is len(other.Genome)
-        assert set(self.Genome.keys()) is set(other.Genome.keys())
-
-        output = deepcopy(other)
-        for key in output.Genome.keys():
-            output.Genome[key].data = _crossover(output.Genome[key].data, self.Genome[key].data)
-            if uniform(0.0, 1.0) > self.mutation_chance:
-                output.Genome[key].mutate()
-
-        return output
 
 class Population:
-    def __init__(self, chromosome, population_size):
-        self.population = []
-        for i in range(population_size):
-            new_chromosome = deepcopy(chromosome)
-            for gene in new_chromosome:
-                gene.randomize()
-            self.population.append(new_chromosome)
+    def __init__(self, chromosome, population_size, mutation_chance=0.05, crossover_chance=0.5, carry_over_percent=0.1):
+        self.genotypes = []
+        self.size = population_size
+        self.carry_over_number = round(carry_over_percent * self.size)
+        self.crossover_chance = crossover_chance
+        self.mutation_chance = mutation_chance
+        for i in range(self.size):
+            new_genotype = Genotype()
+            for name, gene in chromosome.items():
+                new_genotype[name] = gene.get_random_value()
+            self.genotypes.append(new_genotype)
+
+    def create_next_generation(self):
+        self.genotypes.sort(key=lambda genotype: genotype.fitness)
+        new_genotypes = []
+        # More stuff here
+    # def crossover(a, b):
+    #     assert len(self.Genome) is len(other.Genome)
+    #     assert set(self.Genome.keys()) is set(other.Genome.keys())
+    #
+    #     output = deepcopy(other)
+    #     for key in output.Genome.keys():
+    #         output.Genome[key].data = _crossover(output.Genome[key].data, self.Genome[key].data)
+    #         if uniform(0.0, 1.0) > self.mutation_chance:
+    #             output.Genome[key].mutate()
+    #
+    #     return output
