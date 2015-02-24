@@ -1,6 +1,7 @@
 """Provides the basic gene classes for the genetic music project
 """
 
+from bisect import bisect_left
 from copy import deepcopy
 from enum import Enum
 from random import randint
@@ -92,32 +93,54 @@ class Genotype(dict):
     def __init__(self):
         self.fitness = 0
 
-
-class Population:
-    def __init__(self, chromosome, population_size, mutation_chance=0.05, crossover_chance=0.5, carry_over_percent=0.1):
-        self.genotypes = []
-        self.size = population_size
-        self.carry_over_number = round(carry_over_percent * self.size)
-        self.crossover_chance = crossover_chance
+class Population(list):
+    def __init__(self, chromosome, population_size, mutation_chance=0.05, carry_over_percent=0.1):
+        assert(population_size > 2)
+        assert(0.0 <= mutation_chance <= 1.0)
+        assert(0.0 <= carry_over_percent <= 1.0)
         self.mutation_chance = mutation_chance
-        for i in range(self.size):
+        self.carry_over_number = round(carry_over_percent * population_size)
+        assert(self.carry_over_number != population_size)
+
+        for i in range(population_size):
             new_genotype = Genotype()
             for name, gene in chromosome.items():
                 new_genotype[name] = gene.get_random_value()
-            self.genotypes.append(new_genotype)
+            self.append(new_genotype)
 
     def create_next_generation(self):
-        self.genotypes.sort(key=lambda genotype: genotype.fitness)
-        new_genotypes = []
-        # More stuff here
-    # def crossover(a, b):
-    #     assert len(self.Genome) is len(other.Genome)
-    #     assert set(self.Genome.keys()) is set(other.Genome.keys())
-    #
-    #     output = deepcopy(other)
-    #     for key in output.Genome.keys():
-    #         output.Genome[key].data = _crossover(output.Genome[key].data, self.Genome[key].data)
-    #         if uniform(0.0, 1.0) > self.mutation_chance:
-    #             output.Genome[key].mutate()
-    #
-    #     return output
+        self.sort(key=lambda genotype: genotype.fitness)
+        new_genotypes = list()
+
+        # Carry over
+        new_genotypes.extend(self[:self.carry_over_number])
+
+        # Cumulative Probability Distribution
+        cumulative_fitness = 0
+        cumulative_fitnesses = list()
+        for chromosome in self.items():
+            cumulative_fitness += chromosome.fitness
+            cumulative_fitnesses.append(cumulative_fitness)
+
+        # Generate new genotypes
+        for i in range(len(self) - self.carry_over_number):
+
+            # Select for cross-over
+            index1 = bisect_left(cumulative_fitnesses, uniform(0, cumulative_fitness))
+            index2 = bisect_left(cumulative_fitnesses, uniform(0, cumulative_fitness))
+            while index1 is index2:
+                index2 = bisect_left(cumulative_fitnesses, uniform(0, cumulative_fitness))
+
+            genotype1 = self[index1]
+            genotype2 = self[index2]
+
+            assert len(genotype1) is len(genotype2)
+            assert set(genotype1.keys()) is set(genotype2.keys())
+
+            # Generate new genotype
+            new_genotype = Genotype()
+            for key in genotype1.keys():
+                new_genotype[key] = _crossover(genotype1[key], genotype2[key])
+
+            # Save
+            new_genotypes.append(new_genotype)
