@@ -32,33 +32,32 @@ def _translate_note(root, offset):
     return root + chord_tones[offset]
 
 def render_music(genotype):
+    probabilities = [genotype["P1"],\
+                     genotype["P2"],\
+                     genotype["P3"],\
+                     genotype["P4"],\
+                     genotype["P5"]]
+    cumulative_probabilities = list()
+    total_probability = 0
+    for prob in probabilities:
+        total_probability += prob
+        cumulative_probabilities.append(total_probability)
+
     s = stream.Stream()
-    for measure in range(0, 3):
+    for measure in range(0, 4):
         root = 60
-        if (measure % 2 == 1):
+        if measure % 2 == 1:
             root = 67
         _create_major_chord(s, root, 4 * measure)
-        for beat in range(0, 3):
-            probabilities = [genotype["P1"],\
-                             genotype["P2"],\
-                             genotype["P3"],\
-                             genotype["P4"],\
-                             genotype["P5"]]
-            cumulative_probabilities = list()
-            cumulative_probability = 0
-            for prob in probabilities:
-                cumulative_probability += prob
-                cumulative_probabilities.append(cumulative_probability)
-
-            rand_on_range = randint(0, cumulative_probability)
+        for beat in range(0, 4):
+            rand_on_range = randint(0, total_probability)
             index_of_chosen = bisect_left(cumulative_probabilities, rand_on_range)
-
             current_note = _translate_note(root, index_of_chosen)
 
             subdivide = uniform(0.0, 1.0) > genotype["PSubdivide"]
 
             if subdivide:
-                rand_on_range = randint(0, cumulative_probability)
+                rand_on_range = randint(0, total_probability)
                 index_of_chosen = bisect_left(probabilities, rand_on_range)
                 subdivide_note = _translate_note(root, index_of_chosen)
                 note1 = note.Note(current_note)
