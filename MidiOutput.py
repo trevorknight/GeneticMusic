@@ -23,5 +23,15 @@ class MidiOutput:
 
     def play_note(self):
         print('play note')
-        message = mido.Message('note_on', note=100, velocity=127, time=6.2)
+        message = mido.Message('note_on', note=60, velocity=127, time=6.2)
         self.port.send(message)
+
+    def play_file(self, path):
+        for message in mido.MidiFile(path).play():
+            self.port.send(message)
+
+
+if __name__ == "__main__":
+    print('Testing MIDI output')
+    with MidiOutput() as out:
+        out.play_note()

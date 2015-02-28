@@ -1,38 +1,20 @@
 __author__ = 'TrevorKnight'
 
 import MusicGenes
+import MidiOutput
 import music21
+import SimpleChordChromosome
 
+chromo = SimpleChordChromosome.define_chromosome()
 
-# Define Chromosome
-def define_chromosome():
-    new_chromosome = dict()
-    new_chromosome['note1_p'] = MusicGenes.DiscreteOrderedGene(0, 11, MusicGenes.MutatorTypes.random)
-    new_chromosome['note1_v'] = MusicGenes.ContinuousGene(0.1, 1.0)
-    new_chromosome['note2_p'] = MusicGenes.DiscreteOrderedGene(0, 11, MusicGenes.MutatorTypes.random)
-    new_chromosome['note2_v'] = MusicGenes.ContinuousGene(0.1, 1.0)
-    new_chromosome['note3_p'] = MusicGenes.DiscreteOrderedGene(0, 11, MusicGenes.MutatorTypes.random)
-    new_chromosome['note3_v'] = MusicGenes.ContinuousGene(0.1, 1.0)
-    new_chromosome['note4_p'] = MusicGenes.DiscreteOrderedGene(0, 11, MusicGenes.MutatorTypes.random)
-    new_chromosome['note4_v'] = MusicGenes.ContinuousGene(0.1, 1.0)
-    return new_chromosome
-
-# Create music from genotype
-def create_stream(gt: MusicGenes.Genotype):
-    s = music21.stream.Stream()
-    n = music21.note.Note(gt['note1_p'])
-    s.append(n)
-    n = music21.note.Note(gt['note2_p'])
-    s.append(n)
-    n = music21.note.Note(gt['note3_p'])
-    s.append(n)
-    n = music21.note.Note(gt['note4_p'])
-    s.append(n)
-    return s
-
-chromosome = define_chromosome()
-population = MusicGenes.Population(chromosome, 5)
-
-for genotype in population:
-    stream = create_stream(genotype)
-    stream.show('musicxml')
+pop = MusicGenes.Population(chromo, 10)
+for genotype in pop:
+    print(genotype.fitness)
+    s = SimpleChordChromosome.render_music(genotype)
+    mf = music21.midi.translate.streamToMidiFile(s)
+    mf.open("midi.mid", 'wb')
+    mf.write()
+    mf.close()
+    with MidiOutput.MidiOutput() as output:
+        output.play_file("midi.mid")
+    score = int(input('Enter fitness: '))
