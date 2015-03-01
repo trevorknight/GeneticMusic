@@ -6,6 +6,11 @@ from random import randint
 from random import uniform
 from music21 import *
 
+
+scale = [0, 2, 4, 5, 7, 9, 11]
+subdivisions = [1, 2, 3]
+
+
 def define_chromosome():
     nc = dict()
     nc["P1"] = MusicGenes.DiscreteOrderedGene(0, 100)
@@ -13,7 +18,13 @@ def define_chromosome():
     nc["P3"] = MusicGenes.DiscreteOrderedGene(0, 100)
     nc["P4"] = MusicGenes.DiscreteOrderedGene(0, 100)
     nc["P5"] = MusicGenes.DiscreteOrderedGene(0, 100)
-    nc["PSubdivide"] = MusicGenes.ContinuousGene(0.0, 1.0)
+    nc["P6"] = MusicGenes.DiscreteOrderedGene(0, 100)
+    nc["P7"] = MusicGenes.DiscreteOrderedGene(0, 100)
+
+    nc["POneQuarter"] = MusicGenes.DiscreteOrderedGene(0, 100)
+    nc["PTwoEighths"] = MusicGenes.ContinuousGene(0, 100)
+    nc["PTriplet"] = MusicGenes.ContinuousGene(0, 100)
+
     return nc
 
 def _create_major_chord(s, root, offset):
@@ -27,21 +38,33 @@ def _create_major_chord(s, root, offset):
     s.insert(offset + 0, n2)
     s.insert(offset + 0, n3)
 
+
 def _translate_note(root, offset):
-    chord_tones = [0, 2, 4, 5, 7, 9, 11]
-    return root + chord_tones[offset]
+    return root + scale[offset]
+
 
 def render_music(genotype):
-    probabilities = [genotype["P1"],\
-                     genotype["P2"],\
-                     genotype["P3"],\
-                     genotype["P4"],\
-                     genotype["P5"]]
-    cumulative_probabilities = list()
-    total_probability = 0
-    for prob in probabilities:
-        total_probability += prob
-        cumulative_probabilities.append(total_probability)
+    scale_weights = [genotype["P1"],
+                     genotype["P2"],
+                     genotype["P3"],
+                     genotype["P4"],
+                     genotype["P5"],
+                     genotype["P6"],
+                     genotype["P7"]]
+    cumulative_scale_weights = list()
+    total_scale_weight = 0
+    for weight in scale_weights:
+        total_scale_weight += weight
+        cumulative_scale_weights.append(total_scale_weight)
+
+    subdivide_weights = [genotype["POneQuarter"],
+                         genotype["PTwoEights"],
+                         genotype["PTriplets"]]
+    cumulative_subdivide_weights = list()
+    total_subdivide_weight = 0
+    for weight in subdivide_weights:
+        total_subdivide_weight += weight
+        cumulative_subdivide_weights.append(weight)
 
     s = stream.Stream()
     for measure in range(0, 4):
@@ -50,24 +73,15 @@ def render_music(genotype):
             root = 67
         _create_major_chord(s, root, 4 * measure)
         for beat in range(0, 4):
-            rand_on_range = randint(0, total_probability)
-            index_of_chosen = bisect_left(cumulative_probabilities, rand_on_range)
-            current_note = _translate_note(root, index_of_chosen)
 
-            subdivide = uniform(0.0, 1.0) > genotype["PSubdivide"]
+            rand_on_range = randint(0, total_subdivide_weight)
+            index_of_chosen = bisect_left(cumulative_subdivide_weights, rand_on_range)
+            number_notes = subdivisions[index_of_chosen]
 
-            if subdivide:
-                rand_on_range = randint(0, total_probability)
-                index_of_chosen = bisect_left(probabilities, rand_on_range)
-                subdivide_note = _translate_note(root, index_of_chosen)
-                note1 = note.Note(current_note)
-                note1.quarterLength = 0.5
-                note2 = note.Note(subdivide_note)
-                note2.quarterLength = 0.5
-                s.insert(4 * measure + beat, note1)
-                s.insert(4 * measure + beat + 0.5, note2)
-            else:
-                note1 = note.Note(current_note)
-                note1.quarterLength = 1
-                s.insert(4 + measure + beat, note1)
+            for note in range(0, number_notes):
+                rand_on_range = randint(0, total_scale_weight)
+                index_of_chosen = bisect_left(cumulative_scale_weights, rand_on_range)
+                pitch = _translate_note(root, index_of_chosen)
+
+
     return s

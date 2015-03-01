@@ -11,7 +11,6 @@ pop = MusicGenes.Population(chromo, 10)
 for genotype in pop:
     print(genotype.fitness)
     s = SimpleChordChromosome.render_music(genotype)
-    s.show('text')
     s.show('musicxml')
     mf = music21.midi.translate.streamToMidiFile(s)
     mf.open("midi.mid", 'wb')

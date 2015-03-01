@@ -88,6 +88,10 @@ class ContinuousGene(_Gene):
         else:
             self.mutator = _random_mutate
 
+# class SetOfRelativeWeightsGene(_Gene):
+#     def __init__(self, number_possibilities, lower_bound, upper_bound):
+#         super
+
 
 class Genotype(dict):
     def __init__(self):
