@@ -88,9 +88,34 @@ class ContinuousGene(_Gene):
         else:
             self.mutator = _random_mutate
 
-# class SetOfRelativeWeightsGene(_Gene):
-#     def __init__(self, number_possibilities, lower_bound, upper_bound):
-#         super
+
+class SetOfWeightedPossibilitiesGene(_Gene):
+    def _mutate_weights(self, current_weights, lower_bound, upper_bound):
+        for weight in current_weights:
+            weight = _gaussian_integer_mutate(weight, lower_bound, upper_bound)
+        return current_weights
+
+    def _generate_new_weights(self):
+        new_weights = list()
+        for poss in self.possibilities:
+            new_weights.append(randint(self.lower_bound, self.upper_bound))
+        return new_weights
+
+    def get_a_value_based_on_current_weights(self, current_weights):
+        sum_of_weights = 0
+        cumulative_weight_distribution = list()
+        for weight in current_weights:
+            sum_of_weights += weight
+            cumulative_weight_distribution.append(sum_of_weights)
+        rand_value = randint(self.lower_bound, sum_of_weights)
+        return self.possibilities[bisect_left(cumulative_weight_distribution, rand_value)]
+
+    def __init__(self, possibilities, weight_lower_bound, weight_upper_bound):
+        assert(len(possibilities) > 0)
+        super(SetOfWeightedPossibilitiesGene, self).__init__(weight_lower_bound, weight_upper_bound)
+        self.possibilities = possibilities
+        self.mutator = self._mutate_weights
+        self.randomizer =  self._generate_new_weights
 
 
 class Genotype(dict):
@@ -122,8 +147,8 @@ class Population(list):
         # Cumulative Probability Distribution
         cumulative_fitness = 0
         cumulative_fitnesses = list()
-        for chromosome in self.items():
-            cumulative_fitness += chromosome.fitness
+        for genotype in self.items():
+            cumulative_fitness += genotype.fitness
             cumulative_fitnesses.append(cumulative_fitness)
 
         # Generate new genotypes
@@ -135,16 +160,19 @@ class Population(list):
             while index1 is index2:
                 index2 = bisect_left(cumulative_fitnesses, uniform(0, cumulative_fitness))
 
-            genotype1 = self[index1]
-            genotype2 = self[index2]
+            parent_genotype1 = self[index1]
+            parent_genotype2 = self[index2]
 
-            assert len(genotype1) is len(genotype2)
-            assert set(genotype1.keys()) is set(genotype2.keys())
+            assert len(parent_genotype1) is len(parent_genotype2)
+            assert set(parent_genotype1.keys()) is set(parent_genotype2.keys())
 
             # Generate new genotype
             new_genotype = Genotype()
-            for key in genotype1.keys():
-                new_genotype[key] = _crossover(genotype1[key], genotype2[key])
+            for key in parent_genotype1.keys():
+                new_value = _crossover(parent_genotype1[key], parent_genotype2[key])
+                if uniform(0.0, 1.0) > self.mutation_chance:
+                    new_value = self[key].get_mutated_value(new_value)
+                new_genotype[key] = new_value
 
             # Save
             new_genotypes.append(new_genotype)

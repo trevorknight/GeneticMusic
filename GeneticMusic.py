@@ -1,22 +1,20 @@
 __author__ = 'TrevorKnight'
 
-import MusicGenes
 import MidiOutput
 import music21
 import SimpleChordChromosome
 
-chromo = SimpleChordChromosome.define_chromosome()
+simpleMelodyGenerator = SimpleChordChromosome.SimpleMelodyGenerator(20)
 
-pop = MusicGenes.Population(chromo, 10)
-for genotype in pop:
+for genotype in simpleMelodyGenerator.population:
     print(genotype.fitness)
-    s = SimpleChordChromosome.render_music(genotype)
-    s.show('musicxml')
-    mf = music21.midi.translate.streamToMidiFile(s)
-    mf.open("midi.mid", 'wb')
-    mf.write()
-    mf.close()
-    with MidiOutput.MidiOutput() as output:
-        output.play_file("midi.mid")
+    s = simpleMelodyGenerator.render_music(genotype)
+    s.show('text')
+    # mf = music21.midi.translate.streamToMidiFile(s)
+    # mf.open("midi.mid", 'wb')
+    # mf.write()
+    # mf.close()
+    # with MidiOutput.MidiOutput() as output:
+    #     output.play_file("midi.mid")
     score = int(input('Enter fitness: '))
     genotype.fitness = score

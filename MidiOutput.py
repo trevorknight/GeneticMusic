@@ -10,7 +10,7 @@ class MidiOutput:
         self.port = None
 
     def __enter__(self):
-        print('enter')
+        print('Creating virtual MIDI output')
         mido.set_backend('mido.backends.rtmidi')
         self.port = mido.open_output("GeneticMusicOutVirtualPort", virtual=True)
         sleep(1)  # Ensure the virtual MIDI port has time to register
@@ -18,11 +18,11 @@ class MidiOutput:
 
     def __exit__(self, t, v, tb):
         sleep(3)  # Wait for note off messages just in case
-        print('exit')
+        print('Closing virtual MIDI output')
         del self.port
 
     def play_note(self):
-        print('play note')
+        print('Playing test note')
         message = mido.Message('note_on', note=60, velocity=127, time=6.2)
         self.port.send(message)
 
