@@ -90,7 +90,8 @@ class ContinuousGene(_Gene):
 
 
 class SetOfWeightedPossibilitiesGene(_Gene):
-    def _mutate_weights(self, current_weights, lower_bound, upper_bound):
+    @staticmethod
+    def _mutate_weights(current_weights, lower_bound, upper_bound):
         for weight in current_weights:
             weight = _gaussian_integer_mutate(weight, lower_bound, upper_bound)
         return current_weights
@@ -110,17 +111,18 @@ class SetOfWeightedPossibilitiesGene(_Gene):
         rand_value = randint(self.lower_bound, sum_of_weights)
         return self.possibilities[bisect_left(cumulative_weight_distribution, rand_value)]
 
-    def __init__(self, possibilities, weight_lower_bound, weight_upper_bound):
+    def __init__(self, possibilities, weight_lower_bound=0, weight_upper_bound=100):
         assert(len(possibilities) > 0)
         super(SetOfWeightedPossibilitiesGene, self).__init__(weight_lower_bound, weight_upper_bound)
         self.possibilities = possibilities
         self.mutator = self._mutate_weights
-        self.randomizer =  self._generate_new_weights
+        self.randomizer = self._generate_new_weights
 
 
 class Genotype(dict):
     def __init__(self):
         self.fitness = 0
+
 
 class Population(list):
     def __init__(self, chromosome, population_size, mutation_chance=0.05, carry_over_percent=0.1):
@@ -138,7 +140,7 @@ class Population(list):
             self.append(new_genotype)
 
     def create_next_generation(self):
-        self.sort(key=lambda genotype: genotype.fitness)
+        self.sort(key=lambda g: g.fitness)
         new_genotypes = list()
 
         # Carry over
