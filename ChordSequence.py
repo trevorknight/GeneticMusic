@@ -10,3 +10,4 @@ class ChordSequence(list):
         e_minor = music21.chord.Chord(['B2', 'E4', 'G3'])
         f = music21.chord.Chord(['C3', 'F3', 'A3'])
         self.sequence = [c, e_minor, f, f]
+        self.time_feel = music21.duration.Duration(1)

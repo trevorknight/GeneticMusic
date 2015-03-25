@@ -1,10 +1,11 @@
 __author__ = 'TrevorKnight'
 
-import MidiOutput
 import music21
-import SimpleChordChromosome
 
-simpleMelodyGenerator = SimpleChordChromosome.SimpleMelodyGenerator(20)
+import ChordSequence
+import MidiOutput
+import MusicGenes
+import Soloist
 
 
 def play_score(music_score):
@@ -22,9 +23,13 @@ def show_score(music_score):
 
 
 def main():
-    for genotype in simpleMelodyGenerator.population:
+    chord_sequence = ChordSequence.ChordSequence()
+    soloist = Soloist.Soloist(chord_sequence)
+    population = MusicGenes.Population(soloist.get_chromosome(), 20)
+
+    for genotype in population:
         print(genotype.fitness)
-        s = simpleMelodyGenerator.render_music(genotype)
+        s = soloist.create_score(genotype)
         show_score(s)
         play_score(s)
 

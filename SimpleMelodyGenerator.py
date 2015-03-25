@@ -1,12 +1,7 @@
 __author__ = 'Trevor Knight'
 
 import MusicGenes
-from bisect import bisect_left
-from random import randint
-from random import uniform
 import music21
-
-
 
 class SimpleMelodyGenerator:
 
@@ -14,9 +9,10 @@ class SimpleMelodyGenerator:
         scale = [0, 2, 4, 5, 7, 9, 11]
         subdivisions = [1, 2, 3]
         return {"pitches": MusicGenes.SetOfWeightedPossibilitiesGene(scale, 0, 100),\
-        	"subdivisions": MusicGenes.SetOfWeightedPossibilitiesGene(subdivisions, 0, 100)}
+                "subdivisions": MusicGenes.SetOfWeightedPossibilitiesGene(subdivisions, 0, 100)}
 
-    def _insert_major_chord(self, stream, root, offset):
+    @staticmethod
+    def _insert_major_chord(stream, root, offset):
         n1 = music21.note.Note(root)
         n1.quarterLength = 4
 
