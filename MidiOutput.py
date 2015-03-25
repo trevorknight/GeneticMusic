@@ -30,8 +30,10 @@ class MidiOutput:
         for message in mido.MidiFile(path).play():
             self.port.send(message)
 
-
-if __name__ == "__main__":
+def main():
     print('Testing MIDI output')
     with MidiOutput() as out:
         out.play_note()
+
+if __name__ == "__main__":
+	main()
