@@ -8,8 +8,6 @@ import music21
 
 
 
-
-
 class SimpleMelodyGenerator:
 
     def _define_chromosome(self):
