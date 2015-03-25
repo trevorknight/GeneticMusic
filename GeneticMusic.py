@@ -20,19 +20,22 @@ def show_score(music_score):
     music_score.show('musicxml')
     music_score.show('text')
 
-for genotype in simpleMelodyGenerator.population:
-    print(genotype.fitness)
-    s = simpleMelodyGenerator.render_music(genotype)
-    show_score(s)
-    play_score(s)
+def main():
+	for genotype in simpleMelodyGenerator.population:
+	    print(genotype.fitness)
+	    s = simpleMelodyGenerator.render_music(genotype)
+	    show_score(s)
+	    play_score(s)
 
-    have_fitness = False
-    while not have_fitness:
-        try:
-            user_input = int(input('Enter fitness: '))
-            have_fitness = True
-        except ValueError:
-            play_score(s)
+	    have_fitness = False
+	    while not have_fitness:
+	        try:
+	            user_input = int(input('Enter fitness: '))
+	            have_fitness = True
+	        except ValueError:
+	            play_score(s)
 
-    genotype.fitness = user_input
+	    genotype.fitness = user_input
 
+if __name__ == '__main__':
+	main()

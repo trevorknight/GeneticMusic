@@ -4,9 +4,7 @@
 from bisect import bisect_left
 from copy import deepcopy
 from enum import Enum
-from random import randint
-from random import uniform
-from random import normalvariate
+from random import randint, uniform, normalvariate
 
 __authors__ = 'Richard Neal and Trevor Knight'
 
@@ -49,9 +47,10 @@ def _crossover(a, b):
 class _Gene:
     def __init__(self, lower_bound, upper_bound):
         if upper_bound < lower_bound:
-            lower_bound, upper_bound = upper_bound, lower_bound
-        self.lower_bound = lower_bound
-        self.upper_bound = upper_bound
+            self.lower_bound, self.upper_bound = upper_bound, lower_bound
+        else:
+            self.lower_bound, self.upper_bound = lower_bound, upper_bound
+            
         self.mutator = lambda cur, lower, upper: lower_bound
         self.randomizer = lambda: lower_bound
 

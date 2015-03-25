@@ -11,23 +11,23 @@ import music21
 
 
 class SimpleMelodyGenerator:
+
     def _define_chromosome(self):
-        new_chromosome = dict()
         scale = [0, 2, 4, 5, 7, 9, 11]
         subdivisions = [1, 2, 3]
-
-        new_chromosome["pitches"] = MusicGenes.SetOfWeightedPossibilitiesGene(scale, 0, 100)
-        new_chromosome["subdivisions"] = MusicGenes.SetOfWeightedPossibilitiesGene(subdivisions, 0, 100)
-
-        return new_chromosome
+        return {"pitches": MusicGenes.SetOfWeightedPossibilitiesGene(scale, 0, 100),\
+        	"subdivisions": MusicGenes.SetOfWeightedPossibilitiesGene(subdivisions, 0, 100)}
 
     def _insert_major_chord(self, stream, root, offset):
         n1 = music21.note.Note(root)
         n1.quarterLength = 4
+
         n2 = music21.note.Note(root + 4)
         n2.quarterLength = 4
+
         n3 = music21.note.Note(root + 7)
         n3.quarterLength = 4
+
         stream.insert(offset + 0, n1)
         stream.insert(offset + 0, n2)
         stream.insert(offset + 0, n3)
@@ -40,7 +40,7 @@ class SimpleMelodyGenerator:
         s = music21.stream.Stream()
         for measure in range(0, 4):
             root = 60
-            if measure % 2 == 1:
+            if measure % 2:
                 root = 67
             self._insert_major_chord(s, root, 4 * measure)
 
